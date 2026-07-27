@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Carousel Slide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space%20Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=DM%20Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:1080px;height:1350px;overflow:hidden;}
+  body{
+    width:1080px;height:1350px;
+    background:#0a0f1e;
+    font-family:'DM Sans',sans-serif;
+    position:relative;
+  }
+  .slide-root{
+    position:relative;
+    width:1080px;height:1350px;
+    overflow:hidden;
+    background:#0a0f1e;
+  }
+  .bg-overlay{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 10% 5%, rgba(99,102,241,0.3) 0%, transparent 60%), radial-gradient(ellipse 70% 55% at 90% 95%, rgba(0,212,255,0.22) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .content-area{
+    position:absolute;
+    top:120px;
+    left:60px;
+    right:60px;
+    bottom:96px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    overflow:hidden;
+  }
+</style>
+</head>
+<body>
+<div class="slide-root">
+  <!-- Background -->
+  <div class="bg-overlay"></div>
+
+  <!-- Decorative elements -->
+  
+    <svg style="position:absolute;top:82px;left:52px;width:28px;height:28px;opacity:0.55;" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12 2l1.6 5h5.2l-4.2 3 1.6 5-4.2-3-4.2 3 1.6-5-4.2-3h5.2z"/></svg>
+    <svg style="position:absolute;top:200px;right:58px;width:18px;height:18px;opacity:0.35;" viewBox="0 0 24 24" fill="#1e40af"><path d="M12 2l1.6 5h5.2l-4.2 3 1.6 5-4.2-3-4.2 3 1.6-5-4.2-3h5.2z"/></svg>
+    <svg style="position:absolute;bottom:210px;left:78px;width:14px;height:14px;opacity:0.3;" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2l1.6 5h5.2l-4.2 3 1.6 5-4.2-3-4.2 3 1.6-5-4.2-3h5.2z"/></svg>
+    <div style="position:absolute;top:62px;right:58px;display:grid;grid-template-columns:repeat(5,8px);gap:6px;opacity:0.2;">
+      <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div>
+    </div>
+    <span style="position:absolute;top:72px;left:58px;font-family:'Space Grotesk',monospace;font-size:28px;font-weight:900;color:#3b82f6;opacity:0.2;">&lt;/&gt;</span>
+    <div style="position:absolute;top:-120px;left:-120px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,#1e40af2e 0%,transparent 70%);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-100px;right:-100px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,#3b82f61e 0%,transparent 70%);pointer-events:none;"></div>
+
+  <!-- Top bar -->
+  
+    <div style="position:absolute;top:50px;left:60px;right:60px;display:flex;align-items:center;justify-content:space-between;z-index:10;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:11px;color:#000;">AI</div>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:#ffffff;">@sandeeptech.ai</span>
+      </div>
+      <span style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:900;color:#3b82f6;opacity:0.4;letter-spacing:-1px;">04</span>
+    </div>
+
+  <!-- Block stack -->
+  <div class="content-area">
+    
+      <div style="width:72px;height:5px;border-radius:3px;background:linear-gradient(90deg, #00d4ff, #6366f1, transparent);"></div>
+
+      <div style="display:inline-flex;align-items:center;background:rgba(99,102,241,0.25);border:1px solid rgba(99,102,241,0.5);border-radius:24px;padding:8px 20px;align-self:flex-start;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#a5b4fc;letter-spacing:0.08em;">DAY 20</span>
+      </div>
+
+      <div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:68px;font-weight:900;font-style:normal;color:#3b82f6;line-height:1.05;letter-spacing:-2px;">HTML Input</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:64px;font-weight:900;font-style:normal;color:#ffffff;line-height:1.12;letter-spacing:-0.5px;">Make Input Fields Smarter</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:500;color:rgba(255,255,255,0.6);line-height:1.5;">placeholder</div><div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:500;color:rgba(255,255,255,0.6);line-height:1.5;">required</div>
+      </div>
+
+    <div style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+      <div style="background:rgba(255,255,255,0.06);padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.12);">
+        <div style="width:12px;height:12px;border-radius:50%;background:#ff5f56;"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#ffbd2e;"></div>
+        <div style="width:12px;height:12px;border-radius:50%;background:#27c93f;"></div>
+      </div>
+      <div style="padding:24px 22px;">
+            
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.12);">
+                <div style="min-width:26px;height:26px;border-radius:7px;background:#3b82f620;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;color:#3b82f6;font-size:12px;font-weight:700;">›</div>
+                <span style="font-family:'DM Sans',sans-serif;font-size:16px;color:#ffffff;line-height:1.4;">Use placeholder for hints</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.12);">
+                <div style="min-width:26px;height:26px;border-radius:7px;background:#3b82f620;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;color:#3b82f6;font-size:12px;font-weight:700;">›</div>
+                <span style="font-family:'DM Sans',sans-serif;font-size:16px;color:#ffffff;line-height:1.4;">readonly prevents editing</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.12);">
+                <div style="min-width:26px;height:26px;border-radius:7px;background:#3b82f620;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;color:#3b82f6;font-size:12px;font-weight:700;">›</div>
+                <span style="font-family:'DM Sans',sans-serif;font-size:16px;color:#ffffff;line-height:1.4;">disabled blocks input</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.12);">
+                <div style="min-width:26px;height:26px;border-radius:7px;background:#3b82f620;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;color:#3b82f6;font-size:12px;font-weight:700;">›</div>
+                <span style="font-family:'DM Sans',sans-serif;font-size:16px;color:#ffffff;line-height:1.4;">required ensures form completion</span>
+              </div>
+           </div>
+    </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        
+          <div style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#3b82f625;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#3b82f6;font-size:14px;font-weight:700;">›</span>
+            </div>
+            <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#ffffff;line-height:1.4;">Use placeholder for hints</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#3b82f625;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#3b82f6;font-size:14px;font-weight:700;">›</span>
+            </div>
+            <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#ffffff;line-height:1.4;">readonly prevents editing</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#3b82f625;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#3b82f6;font-size:14px;font-weight:700;">›</span>
+            </div>
+            <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#ffffff;line-height:1.4;">disabled blocks input</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#3b82f625;border:1px solid #3b82f640;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#3b82f6;font-size:14px;font-weight:700;">›</span>
+            </div>
+            <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:#ffffff;line-height:1.4;">required ensures form completion</span>
+          </div>
+      </div>
+
+      <div style="padding:20px 24px;border-left:4px solid #3b82f6;background:rgba(255,255,255,0.06);border-radius:0 14px 14px 0;">
+        <p style="font-family:'DM Sans',sans-serif;font-size:18px;font-style:italic;color:rgba(255,255,255,0.6);line-height:1.65;margin:0;">Improve your forms with useful attributes.</p>
+      </div>
+
+      <div style="display:inline-flex;align-items:center;gap:10px;background:#3b82f615;border:1px solid #3b82f644;border-radius:28px;padding:10px 22px;align-self:flex-start;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span style="font-family:'DM Sans',sans-serif;font-size:15px;color:#3b82f6;font-weight:600;">sandeeptech.ai</span>
+      </div>
+  </div>
+
+  <!-- Bottom bar -->
+  
+    <div style="position:absolute;bottom:0;left:0;right:0;height:86px;background:rgba(255,255,255,0.06);border-top:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 52px;z-index:10;backdrop-filter:blur(8px);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:30px;height:30px;border-radius:50%;border:1.5px solid #3b82f6;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'Space Grotesk',sans-serif;font-weight:800;color:#3b82f6;">AI</div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;color:rgba(255,255,255,0.6);">@sandeeptech.ai</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <div style="width:22px;height:6px;border-radius:3px;background:#3b82f6;"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.6);opacity:0.35;"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.6);opacity:0.35;"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.6);opacity:0.35;"></div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);margin-left:4px;opacity:0.55;">Swipe →</span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

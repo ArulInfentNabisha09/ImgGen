@@ -1,0 +1,51 @@
+# ===========================
+# Secrets & Environment
+# ===========================
+.env
+.env.*
+!.env.example
+
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+
+# ===========================
+# Database files
+# ===========================
+database/
+*.sqlite
+*.db
+
+# ===========================
+# AI-generated file storage
+# (these live outside the repo at C:\AIImageGenerator\)
+# but guard against accidental copies inside
+# ===========================
+uploads/
+outputs/
+zip/
+temp/
+*.zip
+
+# ===========================
+# Test artifacts
+# ===========================
+test_output.png
+dummy_test.png
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+npm-debug.log*
+
+# ===========================
+# OS / Editor
+# ===========================
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
