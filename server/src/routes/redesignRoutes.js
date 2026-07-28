@@ -52,7 +52,8 @@ router.post('/redesign', upload.array('images', 20), async (req, res) => {
   };
 
   try {
-    const result = await carouselRedesignService.processFiles(files, handle, userPrompt, onProgress);
+    const onSlideReady = (url) => sendEvent('slide-ready', { url });
+    const result = await carouselRedesignService.processFiles(files, handle, userPrompt, onProgress, onSlideReady);
     console.log(`[Carousel Redesign] ✅ Done — ${result.success}/${result.total} succeeded.`);
     sendEvent('done', result);
   } catch (err) {

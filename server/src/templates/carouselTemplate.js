@@ -197,6 +197,45 @@ function createCarouselSlideHTML(data = {}, instagramHandle = '@yourbrand', imag
       return browserMockup(content, '18px');
     },
 
+    // ── code-block ─────────────────────────────────────────────────────────
+    // A standalone, VS Code-style syntax-highlighted code editor block.
+    'code-block': () => bullets.length > 0 ? (() => {
+      const tokenize = (line) => {
+        return line
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          // HTML tags
+          .replace(/(&lt;\/?[\w\s="'.\-:]+&gt;)/g, `<span style="color:#4ec9b0;">$1</span>`)
+          // CSS properties / values
+          .replace(/([\w-]+)(:)/g, `<span style="color:#9cdcfe;">$1</span><span style="color:#d4d4d4;">$2</span>`)
+          // Strings
+          .replace(/(".*?"|'.*?')/g, `<span style="color:#ce9178;">$1</span>`)
+          // Numbers
+          .replace(/\b(\d+(%|px|em|rem|vh|vw)?)\b/g, `<span style="color:#b5cea8;">$1</span>`)
+          // Comments
+          .replace(/(\/\/.*|\/\*[\s\S]*?\*\/)/g, `<span style="color:#6a9955;font-style:italic;">$1</span>`);
+      };
+      return `
+      <div style="border-radius:14px;overflow:hidden;border:1.5px solid ${spec.borderColor};box-shadow:0 16px 40px rgba(0,0,0,0.4);">
+        <div style="background:#1e1e1e;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:7px;">
+            <span style="width:12px;height:12px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+            <span style="width:12px;height:12px;border-radius:50%;background:#ffbd2e;display:inline-block;"></span>
+            <span style="width:12px;height:12px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+          </div>
+          <span style="font-family:'JetBrains Mono','Fira Code',monospace;font-size:11px;color:#6a6a6a;">index.html</span>
+        </div>
+        <div style="background:#1e1e1e;padding:18px 16px;overflow:hidden;">
+          <table style="border-collapse:collapse;width:100%;">
+            ${bullets.map((line, i) => `
+            <tr>
+              <td style="width:30px;padding:1.5px 12px 1.5px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;color:#4a4a5a;text-align:right;user-select:none;vertical-align:top;">${i+1}</td>
+              <td style="padding:1.5px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:1.7;color:#d4d4d4;white-space:pre;">${tokenize(line)}</td>
+            </tr>`).join('')}
+          </table>
+        </div>
+      </div>`;
+    })() : '',
+
     // ── bullets-list ───────────────────────────────────────────────────────
     'bullets-list': () => bullets.length > 0 ? `
       <div style="display:flex;flex-direction:column;gap:10px;">

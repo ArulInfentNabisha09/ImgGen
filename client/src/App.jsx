@@ -47,13 +47,15 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [progressLog, setProgressLog] = useState([]); // SSE live log
+  const [liveImages, setLiveImages] = useState([]);   // progressive slide previews
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
-  const xhrRef = useRef(null);       // abort handle for SSE XHR
-  const abortCtrlRef = useRef(null); // abort handle for creative fetch
+  const xhrRef = useRef(null);          // abort handle for SSE XHR
+  const abortCtrlRef = useRef(null);    // abort handle for creative fetch
+  const fetchAbortCtrlRef = useRef(null); // abort handle for IG image fetch
 
   // Close lightbox on Escape
   useEffect(() => {
@@ -83,6 +85,7 @@ function App() {
     setError(''); 
     setResult(null); 
     setProgressLog([]);
+    setLiveImages([]);
     setLoadingStatus('');
     if (xhrRef.current) { xhrRef.current.abort(); xhrRef.current = null; }
   };
@@ -91,6 +94,11 @@ function App() {
   const handleFetchIgImages = async () => {
     if (!instagramUrl.trim()) return setError('Please enter an Instagram URL.');
     
+    // Abort any running fetch
+    if (fetchAbortCtrlRef.current) fetchAbortCtrlRef.current.abort();
+    const ctrl = new AbortController();
+    fetchAbortCtrlRef.current = ctrl;
+
     setIsLoading(true);
     setLoadingStatus('Downloading images...');
     setError('');
@@ -100,7 +108,8 @@ function App() {
       const res = await fetch(`${API}/api/instagram/fetch-images`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: instagramUrl.trim() })
+        body: JSON.stringify({ url: instagramUrl.trim() }),
+        signal: ctrl.signal
       });
 
       if (!res.ok) {
@@ -132,8 +141,10 @@ function App() {
 
       setIgFiles(newFiles);
     } catch (err) {
+      if (err.name === 'AbortError') return; // user stopped — silently exit
       setError(err.message || 'An unexpected error occurred.');
     } finally {
+      fetchAbortCtrlRef.current = null;
       setIsLoading(false);
       setLoadingStatus('');
     }
@@ -150,6 +161,7 @@ function App() {
     setIsLoading(true);
     setLoadingStatus('Generating magic...');
     setProgressLog([]);
+    setLiveImages([]);
     setError('');
     setResult(null);
 
@@ -216,6 +228,9 @@ function App() {
             if (currentEvent === 'progress') {
               setProgressLog(prev => [...prev, payload.message]);
               setLoadingStatus(payload.message);
+            } else if (currentEvent === 'slide-ready') {
+              // Progressive: show slide the moment it's done
+              setLiveImages(prev => [...prev, `${API}${payload.url}`]);
             } else if (currentEvent === 'done') {
               setResult({
                 downloadUrl: `${API}${payload.downloadUrl}`,
@@ -254,8 +269,9 @@ function App() {
 
   // ── Stop / Abort generation ──────────────────────────────────────────────
   const handleStop = () => {
-    if (xhrRef.current)    { xhrRef.current.abort();   xhrRef.current = null; }
-    if (abortCtrlRef.current) { abortCtrlRef.current.abort(); abortCtrlRef.current = null; }
+    if (xhrRef.current)          { xhrRef.current.abort();          xhrRef.current = null; }
+    if (abortCtrlRef.current)    { abortCtrlRef.current.abort();    abortCtrlRef.current = null; }
+    if (fetchAbortCtrlRef.current){ fetchAbortCtrlRef.current.abort(); fetchAbortCtrlRef.current = null; }
     setIsLoading(false);
     setLoadingStatus('');
     setError('Generation stopped.');
@@ -291,7 +307,13 @@ function App() {
         {/* ── Instagram URL Mode ─────────────────────────────────────── */}
         {mode === 'instagram' ? (
           <div className="instagram-url-section">
-            <div className="ig-icon-wrap">📸</div>
+            <div className="ig-icon-wrap">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#e1306c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </div>
             <p className="ig-desc">
               Paste any <strong style={{ color: '#e1306c' }}>public</strong> Instagram photo or carousel URL.
               We'll download all images automatically and redesign them with AI.
@@ -307,22 +329,38 @@ function App() {
                 disabled={isLoading}
                 style={{ flex: 1, margin: 0 }}
               />
-              <button 
-                className="generate-btn ig-generate-btn" 
-                onClick={handleFetchIgImages}
-                disabled={isLoading || !instagramUrl}
-                style={{ 
-                  flex: '0 0 auto', 
-                  width: 'auto', 
-                  padding: '0 2rem', 
-                  margin: 0,
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {isLoading && loadingStatus === 'Downloading images...' ? (
-                  <><div className="spinner"></div> Fetching...</>
-                ) : '🔗 Fetch Images'}
-              </button>
+              {isLoading && loadingStatus === 'Downloading images...' ? (
+                <>
+                  <button
+                    className="generate-btn ig-generate-btn"
+                    disabled
+                    style={{ flex: '0 0 auto', width: 'auto', padding: '0 2rem', margin: 0, whiteSpace: 'nowrap', opacity: 0.7 }}
+                  >
+                    <div className="spinner"></div> Fetching...
+                  </button>
+                  <button
+                    onClick={handleStop}
+                    style={{
+                      flex: '0 0 auto', padding: '0 1.5rem', margin: 0, whiteSpace: 'nowrap',
+                      background: 'rgba(239,68,68,0.15)', border: '1.5px solid rgba(239,68,68,0.6)',
+                      borderRadius: '12px', color: '#f87171', fontWeight: 700, fontSize: '0.9rem',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                    Stop
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="generate-btn ig-generate-btn"
+                  onClick={handleFetchIgImages}
+                  disabled={isLoading || !instagramUrl}
+                  style={{ flex: '0 0 auto', width: 'auto', padding: '0 2rem', margin: 0, whiteSpace: 'nowrap' }}
+                >
+                  🔗 Fetch Images
+                </button>
+              )}
             </div>
 
             {/* Instagram Mode Previews */}
@@ -459,59 +497,56 @@ function App() {
           )}
         </div>
 
-        {/* ── Slide Progress Grid (SSE) ─────────────────────────────── */}
-        {isLoading && progressLog.length > 0 && (() => {
-          // Extract just the slide-complete count from progress messages
-          const completed = progressLog.filter(m => m.includes('complete!')).length;
-          const total = (() => {
-            const m = progressLog[0]?.match(/\[(\d+)\/(\d+)\]/);
-            return m ? parseInt(m[2]) : 0;
-          })();
-          if (!total) return null;
-          return (
+        {/* ── Live Slide Preview Grid (Progressive) ─────────────────── */}
+        {liveImages.length > 0 && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
+              ⚡ SLIDES READY SO FAR
+            </p>
             <div style={{
-              marginTop: '1.5rem',
-              display: 'flex',
-              flexWrap: 'wrap',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
               gap: '0.75rem',
-              alignItems: 'center',
             }}>
-              {Array.from({ length: total }, (_, i) => {
-                const done = i < completed;
-                return (
-                  <div key={i} style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '0.3rem',
+              {liveImages.map((url, i) => (
+                <div key={i} onClick={() => setPreviewImage(url)} style={{
+                  position: 'relative',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  border: '2px solid rgba(255,255,255,0.12)',
+                  cursor: 'pointer',
+                  aspectRatio: '4/5',
+                  background: 'rgba(255,255,255,0.05)',
+                  transition: 'transform 0.2s ease, border-color 0.2s ease',
+                  animation: 'fadeSlideIn 0.4s ease forwards',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.7)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
+                  <img src={url} alt={`Slide ${i+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                    padding: '0.4rem 0.5rem',
+                    fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600,
                   }}>
-                    <div style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '50%',
-                      background: done ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'rgba(255,255,255,0.08)',
-                      border: done ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: done ? '1.1rem' : '0.75rem',
-                      color: done ? '#fff' : 'rgba(255,255,255,0.4)',
-                      fontWeight: 600,
-                      transition: 'all 0.3s ease',
-                      boxShadow: done ? '0 0 12px rgba(34,197,94,0.5)' : 'none',
-                    }}>
-                      {done ? '✓' : i + 1}
-                    </div>
-                    <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)' }}>
-                      {i + 1}
-                    </span>
+                    Slide {i + 1}
                   </div>
-                );
-              })}
+                </div>
+              ))}
+              {isLoading && (
+                <div style={{
+                  borderRadius: '12px', border: '2px dashed rgba(255,255,255,0.15)',
+                  aspectRatio: '4/5', display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  background: 'rgba(255,255,255,0.02)',
+                }}>
+                  <div className="spinner" style={{ width: '24px', height: '24px' }}></div>
+                  <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)' }}>Processing...</span>
+                </div>
+              )}
             </div>
-          );
-        })()}
-
+          </div>
+        )}
 
       </main>
 

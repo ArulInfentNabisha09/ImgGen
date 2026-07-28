@@ -18,7 +18,7 @@ class NvidiaProvider {
   async describeImage(imagePath) {
     console.log(`[NVIDIA Vision] Analyzing ${imagePath}...`);
     const imageBuffer  = fs.readFileSync(imagePath);
-    const base64Image  = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+    const base64Image  = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
 
     const payload = {
       model: 'meta/llama-3.2-11b-vision-instruct',
@@ -120,28 +120,31 @@ You will receive:
 3. The user's creative instructions
 
 YOUR TASK:
-A) REWRITE the slide content: Follow the user's instructions exactly. Preserve essential meaning and all key facts. Clean up any OCR artifacts.
-B) DESIGN the slide: Look closely at the structural layout of the provided image (e.g., is there a laptop mockup? is there a code block? is there a logo?). Intentionally pick HTML layout blocks that match the structural intent of the original slide, but redesign it with a unique, visually striking, PREMIUM color scheme and aesthetic. Be BOLD and CREATIVE.
-C) GENERATE an image prompt: Write a highly detailed AI image generation prompt for the slide's visual mockup.
+A) PRESERVE slide content EXACTLY: The tool_name and headline must be taken DIRECTLY from the OCR text or the image itself. Do NOT invent new topic titles or new headlines. You may clean up OCR artifacts (extra whitespace, weird characters) but preserve all words, meaning, code snippets, and key facts 100% faithfully. If the original slide says "HTML Video", your headline MUST say something related to "HTML Video" and NEVER suddenly switch to "HTML Tables" or any other unrelated topic. Do not hallucinate content!
+B) DESIGN the slide: Look closely at the structural layout of the provided image (e.g., is there a laptop mockup? is there a code block? is there a logo?). Intentionally pick HTML layout blocks that match the structural intent of the original slide, but redesign it with a unique, visually striking, PREMIUM color scheme and aesthetic. Be BOLD and CREATIVE. If the slide contains a code snippet, put that code inside bullet_points so the mockup-window can display it.
+C) GENERATE an image prompt: Write a highly detailed AI image generation prompt for the slide's visual mockup ONLY if wants_illustration is true.
 
 AVAILABLE BLOCKS — you will construct the slide by stacking these blocks vertically:
 - "badge" (small label pill)
 - "title-group" (tool_name + headline)
 - "headline-giant" (just headline, extra large)
 - "taglines" (subtitles)
-- "mockup-window" (browser frame showing an image or text snippet)
-- "bullets-list" (standard vertical bullet points)
+- "mockup-window" (browser frame showing an illustration image when wants_illustration=true)
+- "code-block" (VS Code-style syntax-highlighted code editor — USE THIS for slides with code snippets, HTML tags, CSS, JS, etc. Put each line of code as a separate bullet_point)
+- "bullets-list" (standard vertical bullet points for plain text lists)
 - "bullets-grid" (2-column grid of bullets)
+- "bullets-icon" (bullets with icons for features/benefits)
 - "speech-bubbles" (floating speech-bubble style labels)
 - "quote-box" (italic pull-quote block)
 - "url-pill" (call-to-action link)
 - "chip-group" (small extra info chips)
-- "comparison-table" (table comparing features)
-- "statistics-grid" (grid of numbers/stats)
+- "comparison-table" (table comparing features — requires comparison_rows)
+- "statistics-grid" (grid of numbers/stats — requires statistics)
 
-IMAGE RULE:
-- Set "wants_illustration" to true ONLY for the cover slide or if you explicitly want a decorative 3D background art piece to take over the main window. 
-- Set it to FALSE for inner slides where you are displaying code snippets, tables, text, or data inside the mockup window.
+IMAGE RULE — Look at the original slide image carefully:
+- Set "wants_illustration" to true if the original slide contains ANY prominent visual element such as: a laptop, tablet, phone, monitor, device mockup, logo, icon, video player, diagram, chart, infographic, screenshot, person, object, or decorative illustration.
+- Set "wants_illustration" to false ONLY if the original slide's content is purely textual (bullet lists, tables, checklists, plain text) with NO central image/device.
+- When wants_illustration is true, the "image_prompt" MUST describe a visual that closely matches what was in the original (e.g. if original had a laptop with code, write a prompt for a laptop with code). Keep the same subject matter but elevate the style to match the new premium aesthetic.
 
 DECORATION STYLE — pick based on content:
 - "tech": Sparkle stars, dot grids, code brackets, glow orbs (for coding/AI/software content)
@@ -204,7 +207,7 @@ OUTPUT ONLY a raw JSON object (no markdown, no code fences) with this EXACT stru
   "accentLineGradient": "CSS linear-gradient for accent line",
   "showDecorations": true,
   "decorationStyle": "tech",
-  "image_prompt": "Detailed AI image generation prompt for the visual mockup"
+  "image_prompt": "When wants_illustration is true: describe the EXACT visual that was in the original (e.g. 'sleek MacBook laptop showing HTML code on screen, dark background, neon green terminal text, ultra realistic 3D render, dramatic lighting'). Match the subject of the original image but elevate the style to match the new premium aesthetic."
 }
 
 IMPORTANT for width/height: Default is 1080x1350. Only change if the user explicitly requests a different size.`;
@@ -378,9 +381,9 @@ Output the complete creative design JSON:`;
   async extractTextOCR(imagePath) {
     console.log(`[NVIDIA OCR] Extracting text from ${imagePath}...`);
     const imageBuffer = fs.readFileSync(imagePath);
-    const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+    const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
 
-    const prompt = `You are a precise OCR and content extraction system. Your job is to read EVERY piece of text from this image EXACTLY as written — do not paraphrase, summarize or rewrite anything.
+    const prompt = `You are a precise OCR and content extraction system. Your job is to read EVERY piece of text from this image EXACTLY as written — do not paraphrase, summarize or rewrite anything. NEVER hallucinate topics. If the slide is about "Video", do not write "Tables". Read ONLY what is there.
 
 Return ONLY a single valid JSON object (no markdown, no code fences, no explanation) with this exact structure:
 {
